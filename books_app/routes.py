@@ -1,5 +1,6 @@
 """Import packages and modules."""
 import os
+import bleach
 from flask import Blueprint, request, render_template, redirect, url_for, flash
 from datetime import date, datetime
 from books_app.models import Book, Author, Genre, User
@@ -28,11 +29,11 @@ def create_book():
     # if form was submitted and contained no errors
     if form.validate_on_submit():
         new_book = Book(
-            title=form.title.data,
-            publish_date=form.publish_date.data,
-            author=form.author.data,
-            audience=form.audience.data,
-            genres=form.genres.data
+            title=bleach.clean(form.title.data),
+            publish_date=bleach.clean(form.publish_date.data),
+            author=bleach.clean(form.author.data),
+            audience=bleach.clean(form.audience.data),
+            genres=bleach.clean(form.genres.data)
         )
         db.session.add(new_book)
         db.session.commit()
@@ -44,10 +45,24 @@ def create_book():
 @main.route('/create_author', methods=['GET', 'POST'])
 def create_author():
     # TODO: Make an AuthorForm instance
+    form = AuthorForm()
 
     # TODO: If the form was submitted and is valid, create a new Author object
     # and save to the database, then flash a success message to the user and
     # redirect to the homepage
+    if form.validate_on_submit():
+        new_author = Author(
+            name=bleach.clean(form.title.data),
+            publish_date=bleach.clean(form.publish_date.data),
+            author=bleach.clean(form.author.data),
+            audience=bleach.clean(form.audience.data),
+            genres=bleach.clean(form.genres.data)
+        )
+        db.session.add(new_author)
+        db.session.commit()
+
+    flash('New book was created successfully.')
+    return redirect(url_for('main.book_detail', book_id=new_author.id))
 
     # TODO: Send the form object to the template, and use it to render the form
     # fields
